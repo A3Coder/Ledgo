@@ -28,7 +28,7 @@ const { SmsModule, MakeCallModule, OpenSettingsModule, AlertDialogModule } = Nat
 
 //Importing FontAwesome Icons
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCalendarDay, faPhone, faReceipt, faSms } from '@fortawesome/free-solid-svg-icons';
+import { faCalendarDay, faFileInvoice, faPhone, faReceipt, faSms } from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 
 //Importing Contexts
@@ -62,6 +62,11 @@ const MoreOptionsModal = ({ states, func, extraData }) => {
     const [viewShotURI, setviewShotURI] = useState('')
 
     //Functions
+    const handleInvoicePress = () => {
+        //Disable Modal before navigating
+        func()
+        navigation.navigate('InvoicesScreen')
+    }
     const handleReportPress = () => {
         //Disable Modal before navigating
         func()
@@ -243,6 +248,12 @@ const MoreOptionsModal = ({ states, func, extraData }) => {
                 </ViewShot>
 
                 <View style={{ backgroundColor: 'white', borderTopStartRadius: 20, borderTopEndRadius: 20, paddingHorizontal: 20, paddingVertical: 15, flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', alignItems: 'flex-start', rowGap: 20 }}>
+                    <Pressable android_ripple={rippleOptions} onPress={handleInvoicePress} style={{ paddingHorizontal: 20, paddingVertical: 10, justifyContent: 'center', alignItems: 'center', gap: 5, }}>
+                        <View style={{ height: 50, width: 50, borderRadius: 100, backgroundColor: '#07D59F', justifyContent: 'center', alignItems: 'center' }}>
+                            <FontAwesomeIcon icon={faFileInvoice} size={18} color='white'></FontAwesomeIcon>
+                        </View>
+                        <Text style={{ fontFamily: 'Montserrat Medium', fontSize: 11, color: 'black' }}>Invoices</Text>
+                    </Pressable>
                     <Pressable android_ripple={rippleOptions} onPress={handleReportPress} style={{ paddingHorizontal: 20, paddingVertical: 10, justifyContent: 'center', alignItems: 'center', gap: 5, }}>
                         <View style={{ height: 50, width: 50, borderRadius: 100, backgroundColor: '#075898', justifyContent: 'center', alignItems: 'center' }}>
                             <FontAwesomeIcon icon={faReceipt} size={18} color='white'></FontAwesomeIcon>
@@ -255,13 +266,13 @@ const MoreOptionsModal = ({ states, func, extraData }) => {
                         </View>
                         <Text style={{ fontFamily: 'Montserrat Medium', fontSize: 11, color: 'black' }}>Call</Text>
                     </Pressable>
-                    <Pressable android_ripple={rippleOptions} onPress={handleSMSPress} style={{ paddingHorizontal: 20, paddingVertical: 10, justifyContent: 'center', alignItems: 'center', gap: 5, }}>
+                    <Pressable android_ripple={rippleOptions} onPress={handleSMSPress} style={{flexGrow: 1, paddingHorizontal: 20, paddingVertical: 10, justifyContent: 'center', alignItems: 'center', gap: 5, }}>
                         <View style={{ height: 50, width: 50, borderRadius: 100, backgroundColor: 'blue', justifyContent: 'center', alignItems: 'center' }}>
                             <FontAwesomeIcon icon={faSms} size={18} color='white'></FontAwesomeIcon>
                         </View>
                         <Text style={{ fontFamily: 'Montserrat Medium', fontSize: 11, color: 'black' }}>SMS</Text>
                     </Pressable>
-                    <Pressable android_ripple={rippleOptions} onPress={handleShareImageWithCaption} style={{ paddingHorizontal: 20, paddingVertical: 10, justifyContent: 'center', alignItems: 'center', gap: 5, }}>
+                    <Pressable android_ripple={rippleOptions} onPress={handleShareImageWithCaption} style={{flexGrow: 1, paddingHorizontal: 20, paddingVertical: 10, justifyContent: 'center', alignItems: 'center', gap: 5, }}>
                         <View style={{ height: 50, width: 50, borderRadius: 100, backgroundColor: 'green', justifyContent: 'center', alignItems: 'center' }}>
                             <FontAwesomeIcon icon={faWhatsapp} size={18} color='white'></FontAwesomeIcon>
                         </View>

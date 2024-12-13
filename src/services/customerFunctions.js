@@ -112,7 +112,7 @@ const getCustomerbyCid = async (cId, options = {}) => {
         // Fetch transaction data
         const transactionResponse = await transactionsCollection
             .where('cId', '==', cId)
-            .orderBy('billedDate', 'asc')
+            // .orderBy('billedDate', 'asc')
             .get();
 
         // After the second query, check again if the signal was aborted
@@ -133,6 +133,22 @@ const getCustomerbyCid = async (cId, options = {}) => {
             transactionData = transactionResponse.docs.map((doc) => {
                 return { ...doc.data(), docId: doc.ref.id };
             });
+            //Sort the Transactions Data based on Billed Date
+            transactionData.sort((obj1, obj2) => {
+                var obj1SplittedDate = obj1.billedDate.split("/")
+                var obj2SplittedDate = obj2.billedDate.split("/")
+
+                var obj1Date = new Date(parseInt(obj1SplittedDate[2]), parseInt(obj1SplittedDate[1]) - 1, parseInt(obj1SplittedDate[0])) //YYYY, month Index, date
+                var obj2Date = new Date(parseInt(obj2SplittedDate[2]), parseInt(obj2SplittedDate[1]) - 1, parseInt(obj2SplittedDate[0])) //YYYY, month Index, date
+
+                if (obj1Date.getTime() < obj2Date.getTime()) {
+                    return -1
+                } else if (obj1Date.getTime() > obj2Date.getTime()) {
+                    return 1
+                } else {
+                    return 0
+                }
+            })
             customerData = { ...customerData, docId: customerResponse.docs[0].ref.id, transactions: transactionData };
 
             return customerData;

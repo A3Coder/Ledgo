@@ -8,8 +8,16 @@ import {
     FlatList,
     ScrollView,
     ActivityIndicator,
+    Alert,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+
+import RNHTMLtoPDF from 'react-native-html-to-pdf';
+import RNFS from 'react-native-fs'; // Optional: For file handling
+
+//Importing My Custom Packages
+import { NativeModules } from 'react-native';
+const { FileViewer } = NativeModules;
 
 //Importing Components
 import Header from '../../components/CustomHeaders/Header.js';
@@ -24,6 +32,9 @@ import { formatDataforCustomerStatements } from '../../data/CustomerStatementDat
 
 //Import FireStore Functions
 import { getCustomerbyCid } from '../../services/customerFunctions.js';
+
+//Import HTML Invoice
+import { INVOICEHTMLCONTENT, INVOICEHTMLCONTENT2, generateHTMLContent } from '../../utils/InvoiceTemplate.js';
 
 const CustomerStatementScreen = () => {
     //Constants
@@ -109,6 +120,111 @@ const CustomerStatementScreen = () => {
     const [endDate, setendDate] = useState(new Date())
 
     //Functions
+    const generatePDF = async () => {
+        try {
+            const users = [
+                { name: 'John Doe', age: 29, city: 'New York' },
+                { name: 'Jane Doe', age: 25, city: 'Los Angeles' },
+            ];
+            // Create the HTML string dynamically
+            const userRows = users.map(user => {
+                return `
+          <tr>
+            <td>${user.name}</td>
+            <td>${user.age}</td>
+            <td>${user.city}</td>
+          </tr>
+        `;
+            }).join('');
+            // Define your HTML content with styling
+            //     const htmlContent = `
+            //     <html>
+            //       <head>
+            //         <style>
+            //           body { font-family: 'Arial'; padding: 20px; }
+            //           h1 { color: #4CAF50; }
+            //           p { font-size: 16px; line-height: 1.6; }
+            //           table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            //           table, th, td { border: 1px solid #ddd; padding: 8px; }
+            //           th { background-color: #f2f2f2; }
+            //         </style>
+            //       </head>
+            //       <body>
+            //         <h1>User List</h1>
+            //         <p>This is a list of users with dynamic data.</p>
+            //         <table>
+            //           <tr>
+            //             <th>Name</th>
+            //             <th>Age</th>
+            //             <th>City</th>
+            //           </tr>
+            //           ${userRows}
+            //         </table>
+            //       </body>
+            //     </html>
+            //   `;
+
+            const htmlContent = INVOICEHTMLCONTENT
+            // // Generate the PDF
+            // const pdf = await RNHTMLtoPDF.convert({
+            //     html: htmlContent,
+            //     fileName: 'MyStyledPDF',
+            //     base64: false, // Optional: If you need the PDF as a base64 string
+            // });
+
+            // const filePath = pdf.filePath;
+            // const targetPath = `${RNFS.DownloadDirectoryPath}/${filePath.split('/').pop()}`
+
+            // //Copy the File also in Download Directory
+            // RNFS.copyFile(filePath, targetPath)
+            // // Alert.alert('PDF Generated', `PDF saved at: ${targetPath}`);
+
+            // // Make the API request to PDFShift
+            // const response = await fetch('https://api.pdfshift.io/v3/convert/pdf', {
+            //     method: 'POST',
+            //     headers: {
+            //         'Authorization': 'Basic ' + btoa('api:sk_7af1c3061e78284b8f65b7da579086da046e3363'), // Basic Auth
+            //         'Content-Type': 'application/json',
+            //     },
+            //     body: JSON.stringify({ source: htmlContent }),
+            // });
+
+            // if (!response.ok) {
+            //     throw new Error(`HTTP error! Status: ${response.status}`);
+            // }
+
+            // // Get PDF binary data
+            // const pdfBlob = await response.blob();
+
+            // console.log(pdfBlob)
+
+            // // Save the PDF locally
+            // // Convert the blob to a base64 string
+            // const base64Data = await new Promise((resolve, reject) => {
+            //     const reader = new FileReader()
+            //     reader.onloadend = () => resolve(reader.result.split(',')[1]); // Remove "data:application/pdf;base64,"
+            //     reader.onerror = reject;
+            //     reader.readAsDataURL(pdfBlob);
+            // });
+
+            // // Define the path to save the file
+            // const filePath = `${RNFS.DownloadDirectoryPath}/generated.pdf`;
+
+            // // Write the base64 data to a file
+            // await RNFS.writeFile(filePath, base64Data, 'base64');
+
+            // //File Viewer Package
+            // await FileViewer.openFile(filePath);
+
+            // Optional: Share or open the file
+            if (Platform.OS === 'android') {
+                // Handle Android-specific file handling
+            }
+        } catch (error) {
+            console.error('PDF generation failed', error);
+        }
+    };
+
     const handleActiveFilters = (idx) => {
         if (idx === 1) {
             setactive(idx)
@@ -367,7 +483,7 @@ const CustomerStatementScreen = () => {
             </View>
 
             <View style={styles.buttonContainer}>
-                <Pressable android_ripple={rippleOptions} style={[styles.button1]}>
+                <Pressable android_ripple={rippleOptions} onPress={generatePDF} style={[styles.button1]}>
                     <FontAwesomeIcon icon={faDownload} size={18} color='black'></FontAwesomeIcon>
                     <Text style={[styles.buttonText, { color: 'black' }]}>Download</Text>
                 </Pressable>

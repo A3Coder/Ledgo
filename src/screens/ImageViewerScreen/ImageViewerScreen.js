@@ -41,6 +41,7 @@ const ImageViewerScreen = () => {
     const navigation = useNavigation()
     const route = useRoute()
     const image = route.params != '' && route.params != undefined ? route.params.imageUri : null
+
     const docId = route.params.docId
     const indexes = route.params.indexes
 

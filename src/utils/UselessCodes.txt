@@ -1,0 +1,28 @@
+Saving and Viewing the Invoice File from (Create Invoice from Transactions Screen)
+
+            const targetPath = `${RNFS.DownloadDirectoryPath}/${cachesPath.split('/').pop()}`
+
+            //Ask for Permission Then Copy the File
+            const granted = await PermissionsAndroid.request(
+                PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+                {
+                    title: 'File Storage Permission',
+                    message:
+                        'Ledgo App requires access to your storage ' +
+                        'so you can save and read invoice file',
+                    buttonNeutral: 'Ask Me Later',
+                    buttonNegative: 'Cancel',
+                    buttonPositive: 'OK',
+                },
+            );
+            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                console.log('You can use the storage');
+                // //Copy the File also in Download Directory
+                await RNFS.copyFile(cachesPath, targetPath)
+                //File Viewer Package
+                // await FileViewer.openFile(filePath);
+                await FileViewer.openFileFromStorage(cachesPath) //With Permissions
+            } else {
+                console.log('Storage permission denied');
+                ToastAndroid.show('Storage Permission Denied', ToastAndroid.SHORT)
+            }

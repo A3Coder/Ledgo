@@ -16,10 +16,11 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 
 //Importing Packages
 import DateTimePicker from '@react-native-community/datetimepicker';
+import RNFS from 'react-native-fs';
 
 //Importing FontAwesome Icons
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faAngleDown, faCamera, faCheck, faDeleteLeft, faNoteSticky } from '@fortawesome/free-solid-svg-icons';
+import { faAngleDown, faCamera, faCheck, faDeleteLeft, faFilePdf, faNoteSticky, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 //Importing Utilities
 import { timeFormat } from '../../utils/ReusableFunctions';
@@ -37,12 +38,9 @@ import { uploadPhoto } from '../../services/cloudStorageFunctions';
 //Importing Contexts
 import { ReusedContext } from '../../context/ReusedContext';
 
-//Importing My Packages
-import { SendDirectSms } from 'react-native-send-direct-sms';
-
 //Importing My Custom Native Modules
 import { NativeModules } from 'react-native';
-const { SendDirectSmsModule, AlertDialogModule, OpenSettingsModule } = NativeModules;
+const { SendDirectSmsModule, AlertDialogModule, OpenSettingsModule, FileViewer } = NativeModules;
 
 const GivenReceivedScreen = () => {
     //Contexts
@@ -54,12 +52,14 @@ const GivenReceivedScreen = () => {
     const customerId = route.params.customerId
     const status = route.params.screen === 'Given' ? 'due' : 'payment'
 
+
     const calcButtonArray = useMemo(() => {
         return (
-            Array.from({ length: 11 }, (_, i) => {
+            Array.from({ length: 10 }, (_, i) => {
+                // if (i === 9) {
+                //     return '.'
+                // }
                 if (i === 9) {
-                    return '.'
-                } else if (i === 10) {
                     return 0
                 }
                 return i + 1
@@ -83,9 +83,12 @@ const GivenReceivedScreen = () => {
     const [selectedPhoto, setselectedPhoto] = useState(null)
     const [notesInput, setnotesInput] = useState('')
 
+    //States for Generated Invoice
+    const [generatedInvoice, setgeneratedInvoice] = useState(null)
+
     //Functions
     const navigatorFunction = useCallback((screenName, options = '') => {
-        navigation.navigate(screenName, { screen: options })
+        navigation.navigate(screenName, options)
     }, [navigation])
 
     const handlePhotoModal = useCallback(() => {
@@ -139,6 +142,31 @@ const GivenReceivedScreen = () => {
         const month = date.getUTCMonth()
 
         return `${MONTHS[month]} ${date.getUTCDate()}, ${date.getFullYear()}`
+    }
+
+    //Function for Opening Generated Invoice PDF
+    const handlePDFView = () => {
+        if (generatedInvoice != null && String(generatedInvoice).includes('.pdf')) {
+            FileViewer.openFile(generatedInvoice)
+        }
+    }
+
+    // Function for Setting numInput State from Another Screen
+    const handleCreateInvoice = (amount, filePath) => {
+        setnumInput(String(amount))
+        setgeneratedInvoice(filePath)
+    }
+
+    const handleDeleteInvoice = async () => {
+        try {
+            //Delete the File from Cache Storage
+            const path = generatedInvoice
+            await RNFS.unlink(path) //To Delete the File
+
+            setgeneratedInvoice(null)
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     //Date Picker Functions and States
@@ -206,8 +234,6 @@ Balance Rs. ${route.params.screen == "Given" ? Math.abs(totalAmount) : Math.abs(
 
 --Ledgo - Khata App`
 
-                console.log(bodySMS)
-
                 await SendDirectSmsModule.sendSms(mobileNumber, bodySMS)
                     .then(async (result) => {
                         data = { ...data, smsDelivered: true }
@@ -257,6 +283,7 @@ Balance Rs. ${route.params.screen == "Given" ? Math.abs(totalAmount) : Math.abs(
                     prevData.push(tempData)
                     forCustomerTransactions.setState(prevData)
                 }
+
                 setloader(false)
                 forTrackingChanges.func()
                 navigation.goBack()
@@ -327,13 +354,26 @@ Balance Rs. ${route.params.screen == "Given" ? Math.abs(totalAmount) : Math.abs(
                     {/* <Pressable android_ripple={rippleOptions} onPress={() => navigatorFunction('ImageViewer')} style={{ width: 80, height: 80, borderRadius: 5, justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
                         <Image source={BATMAN} resizeMode='cover' style={{ width: '100%', height: '100%' }}></Image>
                     </Pressable> */}
+                    {
+                        route.params.screen === 'Given' && (generatedInvoice != null ? (<Pressable android_ripple={rippleOptions} onPress={handlePDFView} style={{ position: "relative", width: 80, height: 80, padding: 8, borderWidth: 1, borderColor: '#07D589', borderRadius: 5, justifyContent: 'center', alignItems: 'center', backgroundColor: '#07D589', gap: 10, }}>
+                            <FontAwesomeIcon icon={faFilePdf} size={35} color='white'></FontAwesomeIcon>
+                            <TouchableOpacity activeOpacity={0.8} onPress={() => handleDeleteInvoice()} style={[{ position: 'absolute', top: -10, right: -10, zIndex: 10 }, { width: 30, height: 30, backgroundColor: 'white', borderColor: '#07D589', borderWidth: 0.8, borderRadius: 50, justifyContent: 'center', alignItems: 'center' }]}>
+                                <FontAwesomeIcon icon={faTrash} size={15} color='#07D589'></FontAwesomeIcon>
+                            </TouchableOpacity>
+                        </Pressable>) : (
+                            <Pressable android_ripple={rippleOptions} onPress={() => navigatorFunction('CreateInvoice', { func: handleCreateInvoice })} style={{ width: 80, padding: 8, borderWidth: 1, borderColor: '#07D589', borderRadius: 5, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white', gap: 10, overflow: 'hidden' }}>
+                                <FontAwesomeIcon icon={faFilePdf} size={20} color='#07D589'></FontAwesomeIcon>
+                                <Text style={{ fontFamily: 'Montserrat Medium', fontSize: 12, color: '#07D589', textAlign: 'center' }}>Create Invoice</Text>
+                            </Pressable>
+                        ))
+                    }
                 </View>
             </View>
 
             {
                 numInput != '0' && (<View style={{ padding: 10, marginBottom: 10, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 10, backgroundColor: 'white' }}>
                     <View style={[styles.inputContainer]}>
-                        <Text style={styles.inputLabel}>Add Notes: {'(Optional)'}</Text>
+                        <Text style={styles.inputLabel}>Add Description:</Text>
 
                         <FontAwesomeIcon icon={faNoteSticky} size={20} color={'black'}></FontAwesomeIcon>
                         <TextInput style={styles.input} value={notesInput} onChangeText={(e) => handleNotesInput(e)}></TextInput>
@@ -354,7 +394,7 @@ Balance Rs. ${route.params.screen == "Given" ? Math.abs(totalAmount) : Math.abs(
                 {
                     calcButtonArray.map((num, idx) =>
                     (
-                        <TouchableOpacity key={idx} onPress={() => handleCustomKeyboardInput(String(num))} style={{ width: "32%", paddingVertical: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 10, backgroundColor: '#ebebeb' }}>
+                        <TouchableOpacity key={idx} onPress={() => handleCustomKeyboardInput(String(num))} style={[num == 0 ? { width: '66%' } : { width: "32%", }, { paddingVertical: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 10, backgroundColor: '#ebebeb' }]}>
                             <Text style={{ fontFamily: 'Montserrat Bold', fontSize: 22, color: 'black' }}>{num}</Text>
                         </TouchableOpacity>
                     )

@@ -27,6 +27,11 @@ import AddCustomerManuallyScreen from './../screens/AddCustomerScreen/AddCustome
 import GivenReceivedScreen from '../screens/GivenReceivedScreen/GivenReceivedScreen'
 import ImageViewerScreen from '../screens/ImageViewerScreen/ImageViewerScreen'
 
+//Extra Screens After New Requirements
+import CustomerInvoicesScreen from '../screens/CustomerInvoicesScreen/CustomerInvoicesScreen'
+import CreateInvoiceFromTransactions from '../screens/CreateInvoiceScreen/CreateInvoiceFromTransactions'
+import CreateInvoice from '../screens/CreateInvoiceScreen/CreateInvoice'
+
 //Importing Context
 import ReusedContextProvider from '../context/ReusedContext'
 
@@ -51,6 +56,10 @@ const AppNavigator = () => {
                 <Stack.Screen name="AddCustomerManually" component={AddCustomerManuallyScreen} />
                 <Stack.Screen name="GivenReceived" component={GivenReceivedScreen} options={{ animation: 'fade' }} />
                 <Stack.Screen name="ImageViewer" component={ImageViewerScreen} />
+
+                <Stack.Screen name="InvoicesScreen" component={CustomerInvoicesScreen} />
+                <Stack.Screen name="CreateInvoiceFromTRN" component={CreateInvoiceFromTransactions} />
+                <Stack.Screen name="CreateInvoice" component={CreateInvoice} />
             </Stack.Navigator>
         </ReusedContextProvider>
     )

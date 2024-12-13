@@ -31,7 +31,7 @@ export const formattedData = (data) => {
     var prevDateIdx = 0
     data.transactions.forEach((obj) => {
         var getIdx = organizedData.findIndex((obj2) => { return obj2.date === obj.billedDate })
-        if(getIdx != prevDateIdx){
+        if (getIdx != prevDateIdx) {
             txnIndex = 0
             prevDateIdx = getIdx
         } else {

@@ -62,6 +62,7 @@ const CustomerTransactionsScreen = () => {
     const [transactions, settransactions] = useState([])
 
     const [loader, setloader] = useState(true)
+    const [refreshing, setRefreshing] = useState(false);
 
     const [moreOptionsModal, setMoreOptionsModal] = useState(false);
     const [totalAmount, settotalAmount] = useState(0)
@@ -113,6 +114,16 @@ const CustomerTransactionsScreen = () => {
         }
     }
 
+    //Pull To Refresh Function
+    const onRefresh = () => {
+        setRefreshing(true); // Start refreshing
+        // Simulate a network request or data fetching
+        console.log('Refreshing')
+        setTimeout(() => {
+            setRefreshing(false)
+        }, 2000)
+    };
+
     useFocusEffect(
         useCallback(() => {
             if (forCustomerTransactions.state.length != 0) {
@@ -130,7 +141,7 @@ const CustomerTransactionsScreen = () => {
                 setTimeout(() => {
                     controller.abort();  // Abort the fetch request when timeout occurs
                     reject(new Error('Timeout'));
-                }, 5000);  // Timeout set to 5 seconds
+                }, 10000);  // Timeout set to 10 seconds
             });
 
             // Wrap the getCustomerbyCid in a function that supports aborting
@@ -172,6 +183,10 @@ const CustomerTransactionsScreen = () => {
         }
 
         fetchData()
+    }, [])
+
+    useEffect(() => {
+        settotalAmount(0)
     }, [])
 
     //Rendering Components Function
@@ -257,6 +272,9 @@ const CustomerTransactionsScreen = () => {
                             getItemLayout={(data, index) => (
                                 { length: 600, offset: 300 * index, index }
                             )}
+
+                            refreshing={refreshing}
+                            onRefresh={onRefresh}
                         />
                     )
                 }

@@ -7,6 +7,8 @@ import com.ledgo.opensettingsmodule.OpenSettingsPackage; // <-- Opens App Settin
 import com.ledgo.alertdialogmodule.AlertDialogPackage; // <-- Shows Alert Dialog Box
 import com.ledgo.directsmsmodule.SendDirectSMSPackage; // <-- Sends Direct SMS using Default SMS App
 import com.ledgo.networkmodule.NetworkPackage; //<-- Checks Whether Device has Internet Connected or Not
+import com.ledgo.pdffileviewermodule.FileViewerPackage //<-- Views a Particular File using Default Viewer
+import com.ledgo.downloadmanagermodule.DownloadManagerPackage //<-- For Downloading File using Download Manager
 
 import android.app.Application
 import com.facebook.react.PackageList
@@ -34,6 +36,8 @@ class MainApplication : Application(), ReactApplication {
               add(AlertDialogPackage())
               add(SendDirectSMSPackage())
               add(NetworkPackage())
+              add(FileViewerPackage())
+              add(DownloadManagerPackage())
             }
 
         override fun getJSMainModuleName(): String = "index"
